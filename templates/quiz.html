@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>四択クイズ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <div class="quiz-container">
+        <div class="mb-4">
+            <span class="badge bg-primary">Book ID: {{ question.book_id }}</span>
+            <span class="badge bg-success">Chapter ID: {{ question.chapter_id }}</span>
+            <span class="badge bg-info">Quiz ID: {{ question.quiz_id }}</span>
+        </div>
+
+        <div class="quiz-text mb-4">
+            <h3>{{ question.question }}</h3>
+            <div class="choices-text mb-2">
+                <div><span class="choice-label">A</span> <span class="choice-content">{{ question.choices[0] }}</span>
+                </div>
+                <div><span class="choice-label">B</span> <span class="choice-content">{{ question.choices[1] }}</span>
+                </div>
+                <div><span class="choice-label">C</span> <span class="choice-content">{{ question.choices[2] }}</span>
+                </div>
+                <div><span class="choice-label">D</span> <span class="choice-content">{{ question.choices[3] }}</span>
+                </div>
+            </div>
+            <div class="choices-text-margin"></div>
+        </div>
+
+        <div class="button-container">
+            <div class="row">
+                <div class="col-3 my-2">
+                    <button class="btn btn-primary choice-btn" data-choice="A">A</button>
+                </div>
+                <div class="col-3 my-2">
+                    <button class="btn btn-primary choice-btn" data-choice="B">B</button>
+                </div>
+                <div class="col-3 my-2">
+                    <button class="btn btn-primary choice-btn" data-choice="C">C</button>
+                </div>
+                <div class="col-3 my-2">
+                    <button class="btn btn-primary choice-btn" data-choice="D">D</button>
+                </div>
+            </div>
+        </div>
+        <div class="feedback-history-container">
+            <div id="feedback" class="alert mt-1 flex-item" style="display:none;">
+                <span id="feedback-text"></span>
+                <span id="correct-answer"></span>
+            </div>
+            <div id="answer" class="flex-item">
+                <div id="history-title" class="flex-item" style="display:none;">回答履歴：</div>
+                <div id="answer-history" class="flex-item"></div>
+            </div>
+            
+        </div>
+
+        <a id="next-btn" class="btn btn-secondary mt-1 btn-block" style="display:none;"
+            href="{{ url_for('quiz', book_id=question.book_id, chapter_id=question.chapter_id) }}">次の問題へ</a>
+
+    </div>
+    <div id="explanation" style="display:none;"></div>
+
+    </div>
+
+    <script>
+        const correctAnswer = "{{ question.answer }}";
+        document.querySelectorAll('.choice-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                let userChoice = e.target.getAttribute('data-choice');
+                let isCorrect = userChoice === correctAnswer;
+                let explanationText = "{{ question.explanation }}";
+
+                document.getElementById('feedback').classList.add(isCorrect ? 'alert-success' : 'alert-danger');
+                document.getElementById('feedback-text').innerText = isCorrect ? '正解！' : '不正解...';
+                document.getElementById('correct-answer').innerText = isCorrect ? '' : '\n正解は: ' + correctAnswer;
+                document.getElementById('feedback').style.display = 'block';
+                document.getElementById('history-title').style.display = 'block';
+               
+                displayAnswerHistory(answerHistoryData);
+
+                // 解説テキストを表示
+                document.getElementById('explanation').innerText = explanationText;
+                document.getElementById('explanation').style.display = 'block';
+                document.getElementById('next-btn').style.display = 'block';
+
+                // すべてのボタンのクリックイベントを無効化
+                document.querySelectorAll('.choice-btn').forEach(btn => {
+                    btn.style.pointerEvents = "none";
+                });
+
+                // 選択したボタンにクラスを追加
+                e.target.classList.add('selected-choice');
+
+                saveUserAnswer(userChoice, isCorrect); // この関数を呼び出して答えを保存します
+
+            });
+        });
+
+        function saveUserAnswer(userChoice, isCorrect) {
+            const data = {
+                user_id: 1, // 仮のユーザーID。実際のアプリケーションでは適切な方法でユーザーIDを取得する。
+                book_id: "{{ question.book_id }}",
+                chapter_id: "{{ question.chapter_id }}",
+                quiz_id: "{{ question.quiz_id }}",
+                answer: userChoice,
+                is_correct: isCorrect,
+            };
+
+            fetch('/save-answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: 1,
+                    book_id: "{{ question.book_id }}",
+                    chapter_id: "{{ question.chapter_id }}",
+                    quiz_id: "{{ question.quiz_id }}",
+                    answer: userChoice,
+                    is_correct: isCorrect
+                })
+            })
+                .then(response => response.json())
+                .then(data => console.log(data.message))
+                .catch(error => console.log('Error:', error));
+        }
+
+        const answerHistoryData = JSON.parse('{{ answer_history|tojson|safe }}');
+
+        function displayAnswerHistory(historyData) {
+            const currentQuizId = "{{ question.quiz_id }}"; // 現在のクイズIDを取得
+            console.log("Current Quiz ID:", currentQuizId);
+            console.log("History Data Before Filtering:", historyData);
+
+            let filteredHistory = historyData.filter(entry => entry.quiz_id == currentQuizId); // 現在のクイズIDに一致する回答のみをフィルタリング
+            console.log("Filtered History:", filteredHistory);
+            // 最新の5件の履歴データに限定
+            filteredHistory = filteredHistory.slice(-5);
+            console.log("Filtered History-5:", filteredHistory);
+
+            let historyContainer = document.getElementById('answer-history');
+
+            filteredHistory.forEach(entry => {
+                let historyEntry = document.createElement('div');
+                historyEntry.classList.add('history-entry');
+
+                let icon = document.createElement('div');
+                icon.classList.add('history-icon');
+                icon.classList.add(entry.is_correct ? 'correct' : 'incorrect');
+                icon.innerText = entry.answer;
+                historyEntry.appendChild(icon);
+
+                historyContainer.appendChild(historyEntry);
+                console.log("historyEntry:", historyEntry);
+            });
+        }
+
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

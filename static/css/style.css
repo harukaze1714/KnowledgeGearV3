@@ -1,0 +1,231 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9fafc;
+    color: #333;
+}
+
+.quiz-container {
+    max-width: 650px;
+    margin: 3px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-text h3 {
+    font-weight: 600;
+    /* 太さを上げて目立たせる */
+    font-size: 18px;
+    /* フォントサイズを大きく */
+    color: #000;
+    background-color: #e5e5ec;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    /* シャドウを追加 */
+    padding: 10px 15px;
+    /* パディングを追加 */
+    border-radius: 2px;
+    /* 角を少し丸く */
+    margin-bottom: 10px;
+    /* 余白を増やす */
+}
+
+.choice-btn {
+    width: 20vw;
+    max-width: 110px;
+    min-width: 65px;
+    height: 4vh;
+    max-height: 55px;
+    min-height: 35px;
+    font-weight: 700;
+    border-radius: 25px;
+    line-height: 1.5;
+    border: 2px solid #007BFF;
+    background-color: #007BFF;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.choice-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.selected-choice {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.quiz-text {
+    /* 追加: choices-textが拡大することを防ぐために最大の高さを指定 */
+    height: 380px;
+    /* 必要に応じて調整 */
+    overflow-y: auto;
+    /* 内容が多い場合にスクロールを許可 */
+
+}
+
+.choices-text>div {
+    margin-bottom: 30px;
+    background-color: #ebf1f6;
+    border: 2px solid #d1d8e0;
+    padding: 4px 8px;
+    /* この部分のパディングを変更 */
+    margin-bottom: 4px;
+    /* この部分のマージンを変更 */
+    border-radius: 8px;
+    font-weight: normal;
+    transition: background-color 0.3s ease;
+    display: flex;
+}
+
+.choices-text>div:hover {
+    background-color: #dfe7ed;
+}
+
+.choices-text>div span {
+    margin-right: 7px;
+    color: #2c3e50;
+}
+
+.choices-text-margin {
+    margin-bottom: 50px;
+
+}
+
+.choice-label {
+    flex-shrink: 0;
+    width: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-right: 5px;
+}
+
+.choice-content {
+    flex-grow: 1;
+    font-weight: normal;
+}
+
+/* バッジのマージンを調整 */
+.badge {
+    margin-right: 5px;
+}
+
+.button-container .row {
+    margin-top: 0px;
+    /* 追加 */
+    margin-bottom: 0px;
+    /* 追加 */
+}
+
+.col-3.my-2 {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+
+/* feedbackのマージンを調整 */
+#feedback {
+    margin: 1px;
+    /* この部分を変更 */
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+#explanation {
+    display: none;
+    margin-top: 1px;
+    background-color: #e5e5ec;
+    padding: 3px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    /* 文字サイズを小さくする */
+    line-height: 1.6;
+    /* 行の高さを調整 */
+    font-family: 'Times New Roman', Times, serif;
+    /* より学術的なフォントに変更 */
+    color: #555;
+    /* 色を少し暗くする */
+}
+
+.choice-btn:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.button-container {
+    position: relative;
+    /* 子要素の絶対位置を参照する基点となります */
+    height: 10px;
+    /* 適切な高さを設定してください */
+}
+
+.row {
+    position: absolute;
+    bottom: 0;
+    /* 最下部に配置 */
+    width: 100%;
+    /* コンテナの幅に合わせる */
+}
+
+.history-entry {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+#answer-history {
+    margin: 3px;
+    display: flex;
+    align-items: center;
+}
+
+.history-icon {
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    /* これがテキストを太字にします */
+    color: #f0f0f0;
+    /* これがテキストの色を白っぽくします */
+    font-size: 1.1em;
+    /* もしテキストが小さすぎる場合は、この値を調整してください */
+}
+
+.history-icon.correct {
+    background-color: green;
+}
+
+.history-icon.incorrect {
+    background-color: red;
+}
+
+.feedback-history-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.flex-item {
+    width: 49%; /* わずかなギャップを残すための49% */
+}
+
+.correct-answer-text {
+    font-weight: bold;
+    color: red;
+}
+
+#history-title {
+    font-weight: bold;
+    margin-bottom: 1px;
+}
