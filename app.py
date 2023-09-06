@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 
 
 def load_quiz_data():
-    with open('C:/Users/sezak/OneDrive/Documents/vscode/KnowledgeGear/quiz_data.json', 'r', encoding='utf-8') as f:
+    with open('./static/json/quiz_data.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     return [{
         'book_id': entry[1],
