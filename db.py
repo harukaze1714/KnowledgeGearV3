@@ -17,3 +17,13 @@ class AnswerHistory(db.Model):
     answer = db.Column(db.String(255), nullable=False)
     is_correct = db.Column(db.Boolean, default=False, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+class FourChoice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, nullable=False)
+    chapter_id = db.Column(db.Integer, nullable=False)
+    quiz_id = db.Column(db.Integer, nullable=False)
+    question = db.Column(db.String(255), nullable=False)
+    choices = db.Column(db.PickleType, nullable=False)
+    answer = db.Column(db.String(255), nullable=False)
+    explanation = db.Column(db.String(255), nullable=True)
