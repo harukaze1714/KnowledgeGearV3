@@ -165,7 +165,7 @@ body {
     /* 適切な高さを設定してください */
 }
 
-.row {
+.four-choice-row {
     position: absolute;
     bottom: 0;
     /* 最下部に配置 */
@@ -217,7 +217,8 @@ body {
 }
 
 .flex-item {
-    width: 49%; /* わずかなギャップを残すための49% */
+    width: 49%;
+    /* わずかなギャップを残すための49% */
 }
 
 .correct-answer-text {
@@ -228,4 +229,56 @@ body {
 #history-title {
     font-weight: bold;
     margin-bottom: 1px;
+}
+
+/* デスクトップ用のスタイルの追加 (768px以上の画面幅の場合) */
+@media (min-width: 768px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .quiz-container {
+        min-width: 700px; /* あるいは他の適切な幅 */
+        min-height: 500px;
+        padding: 20px;
+        margin: 0 auto; /* センタリング */
+    }
+
+    .row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .quiz-text h3 {
+        font-size: 22px;
+        padding: 15px 20px;
+    }
+
+    .choice-btn {
+        width: 30vw;
+        max-width: 140px;
+        height: 5vh;
+        font-size: 1.2em;
+
+    }
+
+    .quiz-text {
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .choices-text > div {
+        padding: 8px 12px;
+    }
+
+    /* 他の要素もデスクトップ用のスタイルを追加して調整します */
+
+    #explanation {
+        font-size: 16px;
+        line-height: 1.8;
+    }
 }

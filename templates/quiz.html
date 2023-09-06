@@ -34,7 +34,7 @@
         </div>
 
         <div class="button-container">
-            <div class="row">
+            <div class="row four-choice-row">
                 <div class="col-3 my-2">
                     <button class="btn btn-primary choice-btn" data-choice="A">A</button>
                 </div>
@@ -58,15 +58,15 @@
                 <div id="history-title" class="flex-item" style="display:none;">回答履歴：</div>
                 <div id="answer-history" class="flex-item"></div>
             </div>
-            
+
         </div>
 
         <a id="next-btn" class="btn btn-secondary mt-1 btn-block" style="display:none;"
             href="{{ url_for('quiz', book_id=question.book_id, chapter_id=question.chapter_id) }}">次の問題へ</a>
 
-    </div>
-    <div id="explanation" style="display:none;"></div>
 
+        <div id="explanation" style="display:none;"></div>
+    </div>
     </div>
 
     <script>
@@ -82,7 +82,7 @@
                 document.getElementById('correct-answer').innerText = isCorrect ? '' : '\n正解は: ' + correctAnswer;
                 document.getElementById('feedback').style.display = 'block';
                 document.getElementById('history-title').style.display = 'block';
-               
+
                 displayAnswerHistory(answerHistoryData);
 
                 // 解説テキストを表示

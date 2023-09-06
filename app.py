@@ -10,7 +10,7 @@ db = SQLAlchemy(app)
 
 class AnswerHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
     chapter_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     quiz_id = db.Column(db.Integer, nullable=False)
@@ -32,7 +32,7 @@ class AnswerHistory(db.Model):
 
 class FourChoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
     chapter_id = db.Column(db.Integer, nullable=False)
     quiz_id = db.Column(db.Integer, nullable=False)
     question = db.Column(db.String(255), nullable=False)
@@ -58,32 +58,45 @@ class FourChoice(db.Model):
             "explanation": self.explanation
         }
 
+class Book(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, nullable=False, unique=True)
+    name = db.Column(db.String(255), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "book_id": self.book_id,
+            "name": self.name
+        }
+
+
 def load_quiz_data():
     with app.app_context():
         db.create_all()
         questions = [q.to_dict() for q in FourChoice.query.all()]
+        books = [b.to_dict() for b in Book.query.all()]
         print(f"Loaded {len(questions)} questions from database")
-    return questions
+    return questions, books
 
 @app.before_request
 def before_request():
     if not hasattr(g, 'quiz_data_loaded'):
         g.quiz_data_loaded = True
 
-questions = load_quiz_data()
+questions, books = load_quiz_data()
 
 
 @app.route('/')
 def select_book():
     book_ids = list(set(q['book_id'] for q in questions))
-    return render_template('select_book.html', book_ids=book_ids)
-
+    return render_template('select_book.html', books=books)
 
 @app.route('/select_chapter/<book_id>')
 def select_chapter(book_id):
+    book = next((b for b in books if b['book_id'] == int(book_id)), None)
     chapter_ids = list(set(q['chapter_id'] for q in questions if q['book_id'] == int(book_id)))
-    return render_template('select_chapter.html', chapter_ids=chapter_ids, book_id=book_id)
-
+    return render_template('select_chapter.html', chapter_ids=chapter_ids, book=book, book_id=book_id)
 
 @app.route('/quiz/<book_id>/<chapter_id>')
 def quiz(book_id, chapter_id):
