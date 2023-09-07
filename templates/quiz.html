@@ -50,9 +50,9 @@
             </div>
         </div>
         <div class="feedback-history-container">
-            <div id="feedback" class="alert mt-1 flex-item" style="display:none;">
-                <span id="feedback-text"></span>
-                <span id="correct-answer"></span>
+            <div id="feedback" class="alert flex-item flex-container" style="display:none;">
+                <div  id="feedback-text"></div>
+                <div  id="correct-answer"></div>
             </div>
             <div id="answer" class="flex-item">
                 <div id="history-title" class="flex-item" style="display:none;">回答履歴：</div>
@@ -79,7 +79,17 @@
 
                 document.getElementById('feedback').classList.add(isCorrect ? 'alert-success' : 'alert-danger');
                 document.getElementById('feedback-text').innerText = isCorrect ? '正解！' : '不正解...';
-                document.getElementById('correct-answer').innerText = isCorrect ? '' : '\n正解は: ' + correctAnswer;
+
+                if (isCorrect) {
+                    document.getElementById('correct-answer').style.display = 'none';
+                    document.getElementById('feedback-text').style.height = document.getElementById('answer').offsetHeight	 + 'vh';
+
+                } else {
+                    document.getElementById('correct-answer').innerText = '正解は: ' + correctAnswer;
+                    document.getElementById('correct-answer').style.display = 'block';
+                    
+                }
+
                 document.getElementById('feedback').style.display = 'block';
                 document.getElementById('history-title').style.display = 'block';
 

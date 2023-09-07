@@ -131,10 +131,20 @@ body {
 
 /* feedbackのマージンを調整 */
 #feedback {
-    margin: 1px;
+    margin: 4px;
+    padding: 1px 5px;
+    flex: 1;
     /* この部分を変更 */
-    padding-top: 1px;
-    padding-bottom: 1px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; 
+}
+#feedback-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 #explanation {
