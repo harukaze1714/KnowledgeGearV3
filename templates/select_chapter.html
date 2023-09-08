@@ -12,10 +12,10 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h2>Select a Chapter: {{ book.name }}</h2>
+            <h3>Select a Chapter: {{ book.name }}</h3>
             <ul class="list-group">
                 {% for id in chapter_ids %}
-                <li class="list-group-item"><a href="{{ url_for('quiz', book_id=book_id, chapter_id=id) }}">Chapter ID: {{ id }}</a></li>
+                <li class="list-group-item"><a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=id) }}">Chapter ID: {{ id }}</a></li>
                 {% endfor %}
             </ul>
         </div>

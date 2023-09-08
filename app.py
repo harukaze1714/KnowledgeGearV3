@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, jsonify,g
+from flask import Flask, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, g
 import random
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy import desc
+from sqlalchemy.sql.expression import func
 
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'
@@ -70,47 +73,127 @@ class Book(db.Model):
             "name": self.name
         }
 
+def get_latest_answers_subquery(user_id, book_id, chapter_id):
+    print("get_latest_answers_subquery",user_id, book_id, chapter_id)
+    sub = AnswerHistory.query.with_entities(
+    AnswerHistory.quiz_id, func.max(
+        AnswerHistory.timestamp).label('latest')
+    ).filter(
+    AnswerHistory.user_id == user_id, 
+    AnswerHistory.book_id == book_id, 
+    AnswerHistory.chapter_id == chapter_id
+    ).group_by(AnswerHistory.quiz_id).all()
+    
+    print(sub)
+
+    sub = AnswerHistory.query.with_entities(
+        AnswerHistory.quiz_id,func.max(
+            AnswerHistory.timestamp).label('latest')).filter(
+                AnswerHistory.user_id == user_id, 
+                AnswerHistory.book_id == book_id, 
+                AnswerHistory.chapter_id == chapter_id).group_by(AnswerHistory.quiz_id).subquery()
+    return sub
+
+def get_latest_incorrect_answers(user_id, book_id, chapter_id):
+    print("get_latest_incorrect_answers",user_id, book_id, chapter_id)
+
+    subquery = get_latest_answers_subquery(user_id, book_id, chapter_id)
+    
+    answers = db.session.query(AnswerHistory).join(
+        subquery, 
+        db.and_(
+            AnswerHistory.quiz_id == subquery.c.quiz_id, 
+            AnswerHistory.timestamp == subquery.c.latest, 
+            AnswerHistory.is_correct == False
+        )
+    ).order_by(
+        func.random()
+    ).all()
+
+    quiz_ids = [answer.quiz_id for answer in answers]
+    questions = FourChoice.query.filter(
+        FourChoice.book_id == book_id, 
+        FourChoice.chapter_id == chapter_id, 
+        FourChoice.quiz_id.in_(quiz_ids)
+    ).limit(10).all()
+
+    return questions
+
+def get_latest_correct_answers(user_id, book_id, chapter_id):
+    print("get_latest_correct_answers",user_id, book_id, chapter_id)
+
+    questions = FourChoice.query.filter(
+        FourChoice.book_id == book_id, 
+        FourChoice.chapter_id == chapter_id, 
+    ).order_by(
+        func.random()
+    ).limit(10).all()
+
+    return questions
 
 def load_quiz_data():
     with app.app_context():
         db.create_all()
-        questions = [q.to_dict() for q in FourChoice.query.all()]
         books = [b.to_dict() for b in Book.query.all()]
-        print(f"Loaded {len(questions)} questions from database")
-    return questions, books
+    return books
+
+def get_quiz_questions(book_id, chapter_id, mode):
+    # この部分でデータベースから問題を取得し、モードに基づいてフィルタリングします。
+    user_id=1
+    print("get_quiz_questions",book_id, chapter_id, mode)
+
+    if mode == 'review':
+        questions = get_latest_incorrect_answers(user_id, book_id, chapter_id)
+    else :
+        questions = get_latest_correct_answers(user_id, book_id, chapter_id)
+    return questions
+
+books = load_quiz_data()
 
 @app.before_request
 def before_request():
     if not hasattr(g, 'quiz_data_loaded'):
         g.quiz_data_loaded = True
 
-questions, books = load_quiz_data()
-
-
 @app.route('/')
 def select_book():
-    book_ids = list(set(q['book_id'] for q in questions))
     return render_template('select_book.html', books=books)
 
-@app.route('/select_chapter/<book_id>')
+@app.route('/quiz/<book_id>')
 def select_chapter(book_id):
+    questions = [q.to_dict() for q in FourChoice.query.all()]
     book = next((b for b in books if b['book_id'] == int(book_id)), None)
     chapter_ids = list(set(q['chapter_id'] for q in questions if q['book_id'] == int(book_id)))
     return render_template('select_chapter.html', chapter_ids=chapter_ids, book=book, book_id=book_id)
+
+@app.route('/quiz/<book_id>/<chapter_id>/quiz_mode_selection/', methods=['GET', 'POST'])
+def quiz_mode_selection(book_id, chapter_id):
+    if request.method == 'POST':
+        session['quiz_mode'] = request.form['quiz_mode']
+        return redirect(url_for('quiz', book_id=book_id, chapter_id=chapter_id))
+    return render_template('quiz_mode_selection.html', book_id=book_id, chapter_id=chapter_id)
 
 @app.route('/quiz/<book_id>/<chapter_id>')
 def quiz(book_id, chapter_id):
     user_id = 1  
     
-    selected_questions = [q for q in questions if q['book_id'] == int(book_id) and q['chapter_id'] == int(chapter_id)]
+    mode = session.get('quiz_mode', 'normal')
+    print("quiz",book_id, chapter_id, mode)
+    questions = get_quiz_questions(int(book_id), int(chapter_id), mode)
     
-    if not selected_questions:
+    if not questions:
         return "No questions found for this book and chapter", 404
-
-    question = random.choice(selected_questions)
-
+    print("quiz2",book_id, chapter_id, mode, questions)
     answer_history = [ah.to_dict() for ah in AnswerHistory.query.filter_by(user_id=user_id, book_id=str(book_id), chapter_id=str(chapter_id)).all()]
-    return render_template('quiz.html', question=question, answer_history=answer_history)
+    return render_template('quiz.html', questions=[q.to_dict() for q in questions], answer_history=answer_history, questionCount=0)
+
+
+
+@app.route('/score_page/<book_id>')
+def score_page(book_id):
+    # ここでユーザーのスコアを計算できます (もし必要なら)
+    return render_template('score_page.html', book_id=book_id)
+
 
 @app.route('/save-answer', methods=['POST'])
 def save_answer():

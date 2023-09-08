@@ -12,27 +12,31 @@
 <body>
 
     <div class="quiz-container">
-        <div class="mb-4">
-            <span class="badge bg-primary">Book ID: {{ question.book_id }}</span>
-            <span class="badge bg-success">Chapter ID: {{ question.chapter_id }}</span>
-            <span class="badge bg-info">Quiz ID: {{ question.quiz_id }}</span>
-        </div>
+        <div class="question-container">
+            <div class="mb-1">
+                <span class="badge bg-primary">Book ID: {{ questions[questionCount].book_id }}</span>
+                <span class="badge bg-success">Chapter ID: {{ questions[questionCount].chapter_id }}</span>
+                <span class="badge bg-info">Quiz ID: {{ questions[questionCount].quiz_id }}</span>
+            </div>
 
-        <div class="quiz-text mb-4">
-            <h3>{{ question.question }}</h3>
-            <div class="choices-text mb-2">
-                <div><span class="choice-label">A</span> <span class="choice-content">{{ question.option_A }}</span>
-                </div>
-                <div><span class="choice-label">B</span> <span class="choice-content">{{ question.option_B }}</span>
-                </div>
-                <div><span class="choice-label">C</span> <span class="choice-content">{{ question.option_C }}</span>
-                </div>
-                <div><span class="choice-label">D</span> <span class="choice-content">{{ question.option_D }}</span>
+            <div class="quiz-text">
+                <h3>{{ questions[questionCount].question}}</h3>
+                <div class="choices-text mb-2">
+                    <div><span class="choice-label">A</span> <span class="choice-content">{{
+                            questions[questionCount].option_A }}</span>
+                    </div>
+                    <div><span class="choice-label">B</span> <span class="choice-content">{{
+                            questions[questionCount].option_B }}</span>
+                    </div>
+                    <div><span class="choice-label">C</span> <span class="choice-content">{{
+                            questions[questionCount].option_C }}</span>
+                    </div>
+                    <div><span class="choice-label">D</span> <span class="choice-content">{{
+                            questions[questionCount].option_D }}</span>
+                    </div>
                 </div>
             </div>
-            <div class="choices-text-margin"></div>
         </div>
-
         <div class="button-container">
             <div class="row four-choice-row">
                 <div class="col-3 my-2">
@@ -48,52 +52,61 @@
                     <button class="btn btn-primary choice-btn" data-choice="D">D</button>
                 </div>
             </div>
-        </div>
-        <div class="feedback-history-container">
-            <div id="feedback" class="alert flex-item flex-container" style="display:none;">
-                <div  id="feedback-text"></div>
-                <div  id="correct-answer"></div>
+            <div class="feedback-history-container">
+                <div id="feedback" class="alert flex-item flex-container" style="display:none;">
+                    <div id="feedback-text"></div>
+                    <div id="correct-answer"></div>
+                </div>
+                <div id="answer" class="flex-item">
+                    <div id="history-title" class="flex-item" style="display:none;">回答履歴：</div>
+                    <div id="answer-history" class="flex-item"></div>
+                </div>
             </div>
-            <div id="answer" class="flex-item">
-                <div id="history-title" class="flex-item" style="display:none;">回答履歴：</div>
-                <div id="answer-history" class="flex-item"></div>
-            </div>
-
         </div>
-
-        <a id="next-btn" class="btn btn-secondary mt-1 btn-block" style="display:none;"
-            href="{{ url_for('quiz', book_id=question.book_id, chapter_id=question.chapter_id) }}">次の問題へ</a>
-
-
+        <a id="next-btn" class="btn btn-secondary mt-1 btn-block" style="display:none;">次の問題へ</a>
         <div id="explanation" style="display:none;"></div>
     </div>
     </div>
 
     <script>
-        const correctAnswer = "{{ question.answer }}";
+        let questionCount = 0;
+        const questions = JSON.parse('{{ questions|tojson|safe }}');
+        const answerHistoryData = JSON.parse('{{ answer_history|tojson|safe }}');
+        let correctAnswer = "{{ questions[questionCount].answer }}";
+        let explanationText = "{{ questions[questionCount].explanation }}";
+
         document.querySelectorAll('.choice-btn').forEach(button => {
             button.addEventListener('click', (e) => {
+                displayAnswerHistory(answerHistoryData);
+
+                explanationText = questions[questionCount].explanation;
+
+                console.log("questionCount", questionCount);
+                console.log("questions:", questions);
+                console.log("Correct Answer:", correctAnswer);
+                console.log("explanationText:", explanationText);
+
                 let userChoice = e.target.getAttribute('data-choice');
                 let isCorrect = userChoice === correctAnswer;
-                let explanationText = "{{ question.explanation }}";
 
                 document.getElementById('feedback').classList.add(isCorrect ? 'alert-success' : 'alert-danger');
                 document.getElementById('feedback-text').innerText = isCorrect ? '正解！' : '不正解...';
 
                 if (isCorrect) {
                     document.getElementById('correct-answer').style.display = 'none';
-                    document.getElementById('feedback-text').style.height = document.getElementById('answer').offsetHeight	 + 'vh';
+                    if (document.getElementsByClassName('history-icon')[0]?.offsetHeight !== undefined) {
+                        document.getElementById('feedback-text').style.height = 55 + 'px';
+                    }
 
                 } else {
                     document.getElementById('correct-answer').innerText = '正解は: ' + correctAnswer;
                     document.getElementById('correct-answer').style.display = 'block';
-                    
                 }
 
                 document.getElementById('feedback').style.display = 'block';
                 document.getElementById('history-title').style.display = 'block';
 
-                displayAnswerHistory(answerHistoryData);
+
 
                 // 解説テキストを表示
                 document.getElementById('explanation').innerText = explanationText;
@@ -116,9 +129,9 @@
         function saveUserAnswer(userChoice, isCorrect) {
             const data = {
                 user_id: 1, // 仮のユーザーID。実際のアプリケーションでは適切な方法でユーザーIDを取得する。
-                book_id: "{{ question.book_id }}",
-                chapter_id: "{{ question.chapter_id }}",
-                quiz_id: "{{ question.quiz_id }}",
+                book_id: questions[questionCount].book_id,
+                chapter_id: questions[questionCount].chapter_id,
+                quiz_id: questions[questionCount].quiz_id,
                 answer: userChoice,
                 is_correct: isCorrect,
             };
@@ -130,9 +143,9 @@
                 },
                 body: JSON.stringify({
                     user_id: 1,
-                    book_id: "{{ question.book_id }}",
-                    chapter_id: "{{ question.chapter_id }}",
-                    quiz_id: "{{ question.quiz_id }}",
+                    book_id: questions[questionCount].book_id,
+                    chapter_id: questions[questionCount].chapter_id,
+                    quiz_id: questions[questionCount].quiz_id,
                     answer: userChoice,
                     is_correct: isCorrect
                 })
@@ -142,10 +155,9 @@
                 .catch(error => console.log('Error:', error));
         }
 
-        const answerHistoryData = JSON.parse('{{ answer_history|tojson|safe }}');
 
         function displayAnswerHistory(historyData) {
-            const currentQuizId = "{{ question.quiz_id }}"; // 現在のクイズIDを取得
+            let currentQuizId = questions[questionCount].quiz_id; // 現在のクイズIDを取得
             console.log("Current Quiz ID:", currentQuizId);
             console.log("History Data Before Filtering:", historyData);
 
@@ -172,6 +184,51 @@
             });
         }
 
+        document.getElementById('next-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            loadNextQuestion();
+        });
+
+        function loadNextQuestion() {
+            questionCount++;
+            console.log("questions", questions);
+            if (questionCount >= questions.length) {
+                window.location.href = "/score_page/" + questions[0].book_id; // 成績画面のURL (book_idパラメータ付き)
+                return;
+            }
+
+            // 重要な部分: 正解の答えを更新します。
+            correctAnswer = questions[questionCount].answer;
+
+            document.querySelector('.badge.bg-primary').textContent = "Book ID: " + questions[questionCount].book_id;
+            document.querySelector('.badge.bg-success').textContent = "Chapter ID: " + questions[questionCount].chapter_id;
+            document.querySelector('.badge.bg-info').textContent = "Quiz ID: " + questions[questionCount].quiz_id;
+
+            document.querySelector('.quiz-text h3').textContent = questions[questionCount].question;
+
+            let choices = document.querySelectorAll('.choices-text .choice-content');
+            choices[0].textContent = questions[questionCount].option_A;
+            choices[1].textContent = questions[questionCount].option_B;
+            choices[2].textContent = questions[questionCount].option_C;
+            choices[3].textContent = questions[questionCount].option_D;
+
+            // フィードバックセクションと解説セクションをリセットします。
+            document.getElementById('feedback').classList.remove('alert-success', 'alert-danger');
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('feedback-text').style.height = '';
+            document.getElementById('explanation').style.display = 'none';
+            document.getElementById('explanation').innerHTML = ''; // 解説をリセット
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('history-title').style.display = 'none';
+            document.getElementById('answer-history').innerHTML = '';  // 履歴をリセット
+
+
+            // ボタンのクリックイベントを再度有効にします。
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.style.pointerEvents = "auto";
+                btn.classList.remove('selected-choice'); // 選択したボタンのクラスをリセット
+            });
+        }
 
     </script>
 

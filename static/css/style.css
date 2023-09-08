@@ -63,7 +63,7 @@ body {
 
 .quiz-text {
     /* 追加: choices-textが拡大することを防ぐために最大の高さを指定 */
-    height: 380px;
+    height: auto;
     /* 必要に応じて調整 */
     overflow-y: auto;
     /* 内容が多い場合にスクロールを許可 */
@@ -167,20 +167,15 @@ body {
     box-shadow: none !important;
     outline: none !important;
 }
-
+.question-container {
+    min-height: 400px;
+}
 .button-container {
-    position: relative;
-    /* 子要素の絶対位置を参照する基点となります */
-    height: 10px;
-    /* 適切な高さを設定してください */
+
 }
 
 .four-choice-row {
-    position: absolute;
-    bottom: 0;
-    /* 最下部に配置 */
-    width: 100%;
-    /* コンテナの幅に合わせる */
+
 }
 
 .history-entry {
@@ -222,6 +217,7 @@ body {
 }
 
 .feedback-history-container {
+    min-height: 60px;
     display: flex;
     justify-content: space-between;
 }
@@ -239,6 +235,20 @@ body {
 #history-title {
     font-weight: bold;
     margin-bottom: 1px;
+}
+
+.sc-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.sc-choice-btn {
+    border-radius: 15px;
+    font-size: 1.5em; /* テキストのサイズを増やす */
+    margin: 10px; /* ボタン間のマージンを追加 */
+    padding: 10px 20px; /* ボタンのパディングを増やす */
 }
 
 /* デスクトップ用のスタイルの追加 (768px以上の画面幅の場合) */
