@@ -179,6 +179,7 @@ def before_request():
 
 @app.route('/')
 def select_book():
+    print("select_book",books)
     return render_template('select_book.html', books=books)
 
 @app.route('/quiz/<book_id>')
