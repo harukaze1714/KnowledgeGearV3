@@ -119,7 +119,27 @@ def get_latest_incorrect_answers(user_id, book_id, chapter_id):
 
     return questions
 
-def get_latest_correct_answers(user_id, book_id, chapter_id):
+def get_unanswered_questions(user_id, book_id, chapter_id):
+    # すべての問題を取得します
+    all_questions = FourChoice.query.filter(
+        FourChoice.book_id == book_id, 
+        FourChoice.chapter_id == chapter_id
+    ).all()
+    
+    # ユーザーの回答履歴を取得します
+    answered_quiz_ids = [ah.quiz_id for ah in AnswerHistory.query.filter_by(
+        user_id=user_id, 
+        book_id=book_id, 
+        chapter_id=chapter_id
+    ).all()]
+
+    # 回答されていない質問をフィルタリングします
+    unanswered_questions = [q for q in all_questions if q.quiz_id not in answered_quiz_ids]
+
+    return unanswered_questions[:10]
+    
+
+def get_question(user_id, book_id, chapter_id):
     print("get_latest_correct_answers",user_id, book_id, chapter_id)
 
     questions = FourChoice.query.filter(
@@ -144,8 +164,10 @@ def get_quiz_questions(book_id, chapter_id, mode):
 
     if mode == 'review':
         questions = get_latest_incorrect_answers(user_id, book_id, chapter_id)
+    elif mode == 'unanswered':
+        questions = get_unanswered_questions(user_id, book_id, chapter_id)
     else :
-        questions = get_latest_correct_answers(user_id, book_id, chapter_id)
+        questions = get_question(user_id, book_id, chapter_id)
     return questions
 
 books = load_quiz_data()
@@ -161,10 +183,25 @@ def select_book():
 
 @app.route('/quiz/<book_id>')
 def select_chapter(book_id):
-    questions = [q.to_dict() for q in FourChoice.query.all()]
+    user_id = 1  # ここで適切なユーザーIDを取得します
+    questions = [q.to_dict() for q in FourChoice.query.filter_by(book_id=book_id).all()]
     book = next((b for b in books if b['book_id'] == int(book_id)), None)
+
+    chapters = []
     chapter_ids = list(set(q['chapter_id'] for q in questions if q['book_id'] == int(book_id)))
-    return render_template('select_chapter.html', chapter_ids=chapter_ids, book=book, book_id=book_id)
+
+    for chapter_id in chapter_ids:
+        total_questions = len([q for q in questions if q['chapter_id'] == chapter_id])
+        recent_correct_answers = len([ah for ah in AnswerHistory.query.filter_by(user_id=user_id, book_id=book_id, chapter_id=chapter_id, is_correct=True).all()])
+        
+        chapters.append({
+            "id": chapter_id,
+            "total_questions": total_questions,
+            "recent_correct_answers": recent_correct_answers
+        })
+        
+    return render_template('select_chapter.html', chapters=chapters, book=book, book_id=book_id)
+
 
 @app.route('/quiz/<book_id>/<chapter_id>/quiz_mode_selection/', methods=['GET', 'POST'])
 def quiz_mode_selection(book_id, chapter_id):
@@ -173,11 +210,9 @@ def quiz_mode_selection(book_id, chapter_id):
         return redirect(url_for('quiz', book_id=book_id, chapter_id=chapter_id))
     return render_template('quiz_mode_selection.html', book_id=book_id, chapter_id=chapter_id)
 
-@app.route('/quiz/<book_id>/<chapter_id>')
-def quiz(book_id, chapter_id):
+@app.route('/quiz/<book_id>/<chapter_id>/<mode>')
+def quiz(book_id, chapter_id, mode):
     user_id = 1  
-    
-    mode = session.get('quiz_mode', 'normal')
     print("quiz",book_id, chapter_id, mode)
     questions = get_quiz_questions(int(book_id), int(chapter_id), mode)
     

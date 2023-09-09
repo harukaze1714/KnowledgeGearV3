@@ -20,6 +20,8 @@
                         class="btn-primary sc-choice-btn">10問モード</a>
                     <a href="{{ url_for('quiz', book_id=book_id, chapter_id=chapter_id, mode='review') }}"
                         class="btn-primary sc-choice-btn">復習モード</a>
+                    <a href="{{ url_for('quiz', book_id=book_id, chapter_id=chapter_id, mode='unanswered') }}"
+                        class="btn-primary sc-choice-btn">未回答モード</a>
                 </div>
             </div>
         </div>

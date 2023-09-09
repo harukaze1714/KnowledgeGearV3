@@ -14,8 +14,12 @@
         <div class="col-md-8">
             <h3>Select a Chapter: {{ book.name }}</h3>
             <ul class="list-group">
-                {% for id in chapter_ids %}
-                <li class="list-group-item"><a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=id) }}">Chapter ID: {{ id }}</a></li>
+                {% for chapter in chapters %}
+                <li class="list-group-item">
+                    <a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=chapter.id) }}">Chapter ID: {{ chapter.id }}</a>
+                    <span class="badge bg-secondary">Total: {{ chapter.total_questions }}</span>
+                    <span class="badge bg-success">Correct: {{ chapter.recent_correct_answers }}</span>
+                </li>
                 {% endfor %}
             </ul>
         </div>
