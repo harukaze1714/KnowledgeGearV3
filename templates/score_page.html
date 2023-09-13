@@ -1,10 +1,51 @@
 <!DOCTYPE html>
 <html lang="ja">
-<!-- ...他のHTMLヘッダーコード... -->
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>score_page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/score_page_style.css">
+</head>
 
 <body>
-    <!-- ...スコアとその他の情報を表示... -->
+    <!-- スコアとその他の情報を表示 -->
+    <div id="score-display">
+        <p>正解数: <span id="correct-answers">-</span></p>
+        <p>出題数: <span id="total-questions">-</span></p>
 
-    <a href="/quiz/{{ book_id }}" class="btn btn-secondary">チャプターリストへ</a>
+
+        <!-- 新しく追加されたボタンをここに配置 -->
+        <div class="sc-button-container text-center">
+            <a href="{{ url_for('quiz', book_id=book_id, chapter_id=chapter_id, mode='normal') }}"
+                class="btn-primary sc-choice-btn btn-secondary">さらに10問</a>
+            <a href="{{ url_for('quiz', book_id=book_id, chapter_id=chapter_id, mode='review') }}"
+                class="btn-primary sc-choice-btn btn-secondary">さらに復習</a>
+            <a href="{{ url_for('quiz', book_id=book_id, chapter_id=chapter_id, mode='unanswered') }}"
+                class="btn-primary sc-choice-btn btn-secondary">さらに未回答</a>
+        </div>
+
+        <div class="lower-button-container text-center">
+            <a href="/" class="btn btn-secondary lower-importance">ブックリストへ</a>
+            <a href="/quiz/{{ book_id }}" class="btn btn-secondary lower-importance">チャプターリストへ</a>
+        </div>
+    </div>
+
+    <!-- JavaScript to fetch the parameters from URL and display the score -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const correctAnswers = urlParams.get('correct');
+            const totalQuestions = urlParams.get('total');
+
+            document.getElementById('correct-answers').textContent = correctAnswers ? correctAnswers : 'データなし';
+            document.getElementById('total-questions').textContent = totalQuestions ? totalQuestions : 'データなし';
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>

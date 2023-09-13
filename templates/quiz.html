@@ -74,6 +74,20 @@
         const answerHistoryData = JSON.parse('{{ answer_history|tojson|safe }}');
         let correctAnswer = "{{ questions[questionCount].answer }}";
         let explanationText = "{{ questions[questionCount].explanation }}";
+        let correctAnswers = 0;
+
+        let currentQuestion = questions[questionCount];
+        let optionsArray;
+        let optionsMapping;
+        let shuffledOptions;
+
+        let choices = document.querySelectorAll('.choices-text .choice-content');
+        ({ optionsArray, correctAnswer, optionsMapping } = shuffleOptionsAndKeepTrack());
+        console.log("currentanswer:", correctAnswer);
+        choices[0].textContent = optionsArray[0].content;
+        choices[1].textContent = optionsArray[1].content;
+        choices[2].textContent = optionsArray[2].content;
+        choices[3].textContent = optionsArray[3].content;
 
         document.querySelectorAll('.choice-btn').forEach(button => {
             button.addEventListener('click', (e) => {
@@ -81,10 +95,10 @@
 
                 explanationText = questions[questionCount].explanation;
 
-                console.log("questionCount", questionCount);
-                console.log("questions:", questions);
-                console.log("Correct Answer:", correctAnswer);
-                console.log("explanationText:", explanationText);
+                //console.log("questionCount", questionCount);
+                //console.log("questions:", questions);
+                //console.log("Correct Answer:", correctAnswer);
+                //console.log("explanationText:", explanationText);
 
                 let userChoice = e.target.getAttribute('data-choice');
                 let isCorrect = userChoice === correctAnswer;
@@ -93,6 +107,7 @@
                 document.getElementById('feedback-text').innerText = isCorrect ? '正解！' : '不正解...';
 
                 if (isCorrect) {
+                    correctAnswers++; 
                     document.getElementById('correct-answer').style.display = 'none';
                     if (document.getElementsByClassName('history-icon')[0]?.offsetHeight !== undefined) {
                         document.getElementById('feedback-text').style.height = 55 + 'px';
@@ -127,12 +142,23 @@
         });
 
         function saveUserAnswer(userChoice, isCorrect) {
+            //let newPosition = parseInt(currentQuestion.find(map => map.originalOption == userChoice).newPosition);
+            //let originalChoice = ['A', 'B', 'C', 'D'][newPosition] || '値が無効です';
+
+            let newPosition = "ABCD".indexOf(userChoice);
+            let originalChoice = optionsMapping[newPosition].originalOption
+            console.log("optionsMapping:", optionsMapping);
+            console.log("userChoice:", userChoice);
+            console.log("parseInt(optionsMapping.find(map => map.originalOption == userChoice).newPosition):", parseInt(optionsMapping.find(map => map.originalOption == userChoice).newPosition));
+            console.log("Current Question:", currentQuestion);
+            console.log("originalChoice:", originalChoice);
+
             const data = {
                 user_id: 1, // 仮のユーザーID。実際のアプリケーションでは適切な方法でユーザーIDを取得する。
                 book_id: questions[questionCount].book_id,
                 chapter_id: questions[questionCount].chapter_id,
                 quiz_id: questions[questionCount].quiz_id,
-                answer: userChoice,
+                answer: originalChoice,
                 is_correct: isCorrect,
             };
 
@@ -146,7 +172,7 @@
                     book_id: questions[questionCount].book_id,
                     chapter_id: questions[questionCount].chapter_id,
                     quiz_id: questions[questionCount].quiz_id,
-                    answer: userChoice,
+                    answer: originalChoice,
                     is_correct: isCorrect
                 })
             })
@@ -158,29 +184,37 @@
 
         function displayAnswerHistory(historyData) {
             let currentQuizId = questions[questionCount].quiz_id; // 現在のクイズIDを取得
-            console.log("Current Quiz ID:", currentQuizId);
-            console.log("History Data Before Filtering:", historyData);
+            //console.log("Current Quiz ID:", currentQuizId);
+            //console.log("History Data Before Filtering:", historyData);
 
             let filteredHistory = historyData.filter(entry => entry.quiz_id == currentQuizId); // 現在のクイズIDに一致する回答のみをフィルタリング
-            console.log("Filtered History:", filteredHistory);
+            //console.log("Filtered History:", filteredHistory);
             // 最新の5件の履歴データに限定
             filteredHistory = filteredHistory.slice(-5);
-            console.log("Filtered History-5:", filteredHistory);
+            //console.log("Filtered History-5:", filteredHistory);
 
             let historyContainer = document.getElementById('answer-history');
 
+            console.log("dAH_optionsMapping:", optionsMapping);
             filteredHistory.forEach(entry => {
+                // Using optionsMapping to find the original option
+
+                let currentPosition = parseInt(optionsMapping.find(map => map.originalOption == entry.answer).newPosition);
+                let currentChoice = ['A', 'B', 'C', 'D'][currentPosition] || '値が無効です';
+                console.log("dAH_entry.answer:", entry.answer);
+                console.log("dAH_currentChoice:", currentChoice);
+
                 let historyEntry = document.createElement('div');
                 historyEntry.classList.add('history-entry');
 
                 let icon = document.createElement('div');
                 icon.classList.add('history-icon');
                 icon.classList.add(entry.is_correct ? 'correct' : 'incorrect');
-                icon.innerText = entry.answer;
+                icon.innerText = currentChoice;
                 historyEntry.appendChild(icon);
 
                 historyContainer.appendChild(historyEntry);
-                console.log("historyEntry:", historyEntry);
+                //console.log("historyEntry:", historyEntry);
             });
         }
 
@@ -191,14 +225,10 @@
 
         function loadNextQuestion() {
             questionCount++;
-            console.log("questions", questions);
+            //console.log("questions", questions);
             if (questionCount >= questions.length) {
-                window.location.href = "/score_page/" + questions[0].book_id; // 成績画面のURL (book_idパラメータ付き)
-                return;
+                window.location.href = "/score_page/" + questions[0].book_id +"/"+ questions[0].chapter_id + "?correct=" + correctAnswers + "&total=" + questionCount; // 成績画面のURL (book_id, correct, and total パラメータ付き)               return;
             }
-
-            // 重要な部分: 正解の答えを更新します。
-            correctAnswer = questions[questionCount].answer;
 
             document.querySelector('.badge.bg-primary').textContent = "Book ID: " + questions[questionCount].book_id;
             document.querySelector('.badge.bg-success').textContent = "Chapter ID: " + questions[questionCount].chapter_id;
@@ -206,11 +236,18 @@
 
             document.querySelector('.quiz-text h3').textContent = questions[questionCount].question;
 
-            let choices = document.querySelectorAll('.choices-text .choice-content');
-            choices[0].textContent = questions[questionCount].option_A;
-            choices[1].textContent = questions[questionCount].option_B;
-            choices[2].textContent = questions[questionCount].option_C;
-            choices[3].textContent = questions[questionCount].option_D;
+            choices = document.querySelectorAll('.choices-text .choice-content');
+            ({ optionsArray, correctAnswer, optionsMapping } = shuffleOptionsAndKeepTrack());
+            console.log("currentanswer:", correctAnswer);
+            choices[0].textContent = optionsArray[0].content;
+            choices[1].textContent = optionsArray[1].content;
+            choices[2].textContent = optionsArray[2].content;
+            choices[3].textContent = optionsArray[3].content;
+
+            //console.log("currentQuestion:", currentQuestion);
+            //console.log("optionsArray:", optionsArray);
+
+
 
             // フィードバックセクションと解説セクションをリセットします。
             document.getElementById('feedback').classList.remove('alert-success', 'alert-danger');
@@ -228,6 +265,60 @@
                 btn.style.pointerEvents = "auto";
                 btn.classList.remove('selected-choice'); // 選択したボタンのクラスをリセット
             });
+        }
+
+
+        function shuffleOptionsAndKeepTrack() {
+            currentQuestion = questions[questionCount];
+            optionsArray = [
+                { option: 'A', content: currentQuestion.option_A },
+                { option: 'B', content: currentQuestion.option_B },
+                { option: 'C', content: currentQuestion.option_C },
+                { option: 'D', content: currentQuestion.option_D }
+            ];
+
+            shuffleArray(optionsArray);
+
+            // Create an array to store the mappings
+            optionsMapping = optionsArray.map((option, index) => {
+                return { newPosition: index, originalOption: option.option };
+            });
+
+            console.log(optionsMapping);
+            currentPosition = parseInt(optionsMapping.find(option => option.originalOption == currentQuestion.answer).newPosition);
+            //correctAnswer = optionsMapping[currentPosition].originalOption;
+            correctAnswer = ['A', 'B', 'C', 'D'][currentPosition] || '値が無効です';
+            //correctAnswer = optionsMapping.find(option => option.originalOption == currentQuestion.answer).originalOption;
+            console.log("---------------------");
+            console.log("currentQuestion:", currentQuestion);
+            console.log("optionsMapping", optionsMapping);
+            console.log("optionsMapping.find(option => option.originalOption == currentQuestion.answer).newPosition:", optionsMapping.find(option => option.originalOption == currentQuestion.answer).newPosition);
+            console.log("optionsMapping.find(option => option.originalOption == currentQuestion.answer).originalOption:", optionsMapping.find(option => option.originalOption == currentQuestion.answer).originalOption);
+            console.log("SOAKTcorrectAnswer:", correctAnswer);
+
+            return { optionsArray, correctAnswer, optionsMapping };
+        }
+
+
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+
+        }
+
+        function getCorrectOption(shuffledChoices, originalQuestion) {
+            for (let i = 0; i < shuffledChoices.length; i++) {
+                if (shuffledChoices[i] === originalQuestion.correct_option) {
+                    return i;
+                }
+            }
+            return null;
+        }
+        function getShuffleHistory() {
+            return shuffleHistory;
         }
 
     </script>

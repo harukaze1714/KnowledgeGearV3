@@ -245,6 +245,21 @@ body {
     padding: 10px 20px; /* ボタンのパディングを増やす */
 }
 
+
+.chapter_name{
+    min-width: 35% ;
+    display: inline-block;
+}
+
+.total_questions {
+    min-width: 80px;
+    display: inline-block;
+}
+.recent_correct_answers{
+    min-width: 80px;
+    display: inline-block;
+}
+
 /* デスクトップ用のスタイルの追加 (768px以上の画面幅の場合) */
 @media (min-width: 768px) {
     body {

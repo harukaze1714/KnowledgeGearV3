@@ -16,9 +16,11 @@
             <ul class="list-group">
                 {% for chapter in chapters %}
                 <li class="list-group-item">
-                    <a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=chapter.id) }}">Chapter ID: {{ chapter.id }}</a>
-                    <span class="badge bg-secondary">Total: {{ chapter.total_questions }}</span>
-                    <span class="badge bg-success">Correct: {{ chapter.recent_correct_answers }}</span>
+                    <span class="chapter_name">
+                        <a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=chapter.id) }}">Chapter ID: {{ chapter.id }}</a>
+                    </span>
+                    <span class="badge bg-secondary total_questions">Total: {{ chapter.total_questions }}</span>
+                    <span class="badge bg-success recent_correct_answers">Correct: {{ chapter.recent_correct_answers }}</span>
                 </li>
                 {% endfor %}
             </ul>

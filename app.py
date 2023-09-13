@@ -170,6 +170,14 @@ def get_quiz_questions(book_id, chapter_id, mode):
         questions = get_question(user_id, book_id, chapter_id)
     return questions
 
+def get_question_counts(user_id, book_id, chapter_id):
+    review_count = len(get_latest_incorrect_answers(user_id, book_id, chapter_id))
+    unanswered_count = len(get_unanswered_questions(user_id, book_id, chapter_id))
+    return review_count, unanswered_count
+
+
+
+
 books = load_quiz_data()
 
 @app.before_request
@@ -185,6 +193,7 @@ def select_book():
 @app.route('/quiz/<book_id>')
 def select_chapter(book_id):
     user_id = 1  # ここで適切なユーザーIDを取得します
+    
     questions = [q.to_dict() for q in FourChoice.query.filter_by(book_id=book_id).all()]
     book = next((b for b in books if b['book_id'] == int(book_id)), None)
 
@@ -206,10 +215,15 @@ def select_chapter(book_id):
 
 @app.route('/quiz/<book_id>/<chapter_id>/quiz_mode_selection/', methods=['GET', 'POST'])
 def quiz_mode_selection(book_id, chapter_id):
+    user_id = 1
+    review_count, unanswered_count = get_question_counts(user_id, book_id, chapter_id)
+    print("review_count unanswered_count:",review_count, unanswered_count)
+          
     if request.method == 'POST':
         session['quiz_mode'] = request.form['quiz_mode']
         return redirect(url_for('quiz', book_id=book_id, chapter_id=chapter_id))
-    return render_template('quiz_mode_selection.html', book_id=book_id, chapter_id=chapter_id)
+    return render_template('quiz_mode_selection.html', book_id=book_id, chapter_id=chapter_id, review_count=review_count, unanswered_count=unanswered_count)
+
 
 @app.route('/quiz/<book_id>/<chapter_id>/<mode>')
 def quiz(book_id, chapter_id, mode):
@@ -225,10 +239,10 @@ def quiz(book_id, chapter_id, mode):
 
 
 
-@app.route('/score_page/<book_id>')
-def score_page(book_id):
-    # ここでユーザーのスコアを計算できます (もし必要なら)
-    return render_template('score_page.html', book_id=book_id)
+@app.route('/score_page/<int:book_id>/<int:chapter_id>')
+def score_page(book_id, chapter_id):
+    return render_template('score_page.html', book_id=book_id, chapter_id=chapter_id)
+
 
 
 @app.route('/save-answer', methods=['POST'])
