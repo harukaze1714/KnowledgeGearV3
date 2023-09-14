@@ -8,12 +8,18 @@ from sqlalchemy.sql.expression import func
 
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydatabase.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maindatabase.db'
+app.config['SQLALCHEMY_BINDS'] = {
+    'db1': 'sqlite:///mydatabase.db',
+    'db2': 'sqlite:///answerdata.db'
+}
 db = SQLAlchemy(app)
 
+
 class AnswerHistory(db.Model):
+    __bind_key__ = 'db2'
     id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
+    book_id = db.Column(db.Integer, nullable=False)
     chapter_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     quiz_id = db.Column(db.Integer, nullable=False)
@@ -34,8 +40,9 @@ class AnswerHistory(db.Model):
         }
 
 class FourChoice(db.Model):
+    __bind_key__ = 'db1'
     id = db.Column(db.Integer, primary_key=True)
-    book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
+    book_id = db.Column(db.Integer, nullable=False)
     chapter_id = db.Column(db.Integer, nullable=False)
     quiz_id = db.Column(db.Integer, nullable=False)
     question = db.Column(db.String(255), nullable=False)
@@ -62,6 +69,7 @@ class FourChoice(db.Model):
         }
 
 class Book(db.Model):
+    __bind_key__ = 'db1'
     id = db.Column(db.Integer, primary_key=True)
     book_id = db.Column(db.Integer, nullable=False, unique=True)
     name = db.Column(db.String(255), nullable=False)
@@ -153,6 +161,10 @@ def get_question(user_id, book_id, chapter_id):
 
 def load_quiz_data():
     with app.app_context():
+        if not Book.query.first():
+            book1 = Book(book_id=99, name="Book 1")
+            db.session.add(book1)
+            db.session.commit()
         db.create_all()
         books = [b.to_dict() for b in Book.query.all()]
     return books
@@ -174,8 +186,6 @@ def get_question_counts(user_id, book_id, chapter_id):
     review_count = len(get_latest_incorrect_answers(user_id, book_id, chapter_id))
     unanswered_count = len(get_unanswered_questions(user_id, book_id, chapter_id))
     return review_count, unanswered_count
-
-
 
 
 books = load_quiz_data()
@@ -274,4 +284,6 @@ def get_answer_history():
     return jsonify({'answer_history': answer_history}), 200
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
