@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, session, g, redirect, url_for
 from utils import load_quiz_data, get_quiz_questions, get_question_counts
-from models import Book, AnswerHistory, FourChoice,Like,Dislike,db
+from models import Book, AnswerHistory, FourChoice,Chapter,Like,Dislike,db
 from collections import Counter
 
 def init_views(app):
@@ -19,10 +19,14 @@ def init_views(app):
     @app.route('/quiz/<book_id>')
     def select_chapter(book_id):
         user_id = 1  # ここで適切なユーザーIDを取得します
-        
-        questions = [q.to_dict() for q in FourChoice.query.filter_by(book_id=book_id).all()]
-        book = next((b for b in books if b['book_id'] == int(book_id)), None)
 
+        # book変数の定義をBookモデルを使って取得するよう更新
+        book = Book.query.filter_by(book_id=book_id).first()
+        if book:
+            book = book.to_dict()
+
+        questions = [q.to_dict() for q in FourChoice.query.filter_by(book_id=book_id).all()]
+        
         chapters = []
         chapter_ids = list(set(q['chapter_id'] for q in questions if q['book_id'] == int(book_id)))
 
@@ -30,13 +34,22 @@ def init_views(app):
             total_questions = len([q for q in questions if q['chapter_id'] == chapter_id])
             recent_correct_answers = len([ah for ah in AnswerHistory.query.filter_by(user_id=user_id, book_id=book_id, chapter_id=chapter_id, is_correct=True).all()])
             
+            # ここで章の名前を取得します
+            chapter = Chapter.query.filter_by(book_id=book_id, chapter_id=chapter_id).first()
+            if chapter:
+                chapter_name = chapter.name
+            else:
+                chapter_name = None
+
             chapters.append({
                 "id": chapter_id,
+                "name": chapter_name,
                 "total_questions": total_questions,
                 "recent_correct_answers": recent_correct_answers
             })
-            
+
         return render_template('select_chapter.html', chapters=chapters, book=book, book_id=book_id)
+
 
 
     @app.route('/quiz/<book_id>/<chapter_id>/quiz_mode_selection/', methods=['GET', 'POST'])

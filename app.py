@@ -11,13 +11,14 @@ app.config['SQLALCHEMY_BINDS'] = {
     'db2': 'sqlite:///answerdata.db'
 }
 
-db.init_app(app)
-init_views(app)
 
+db.init_app(app)
 migrate = Migrate(app, db)
 
 if __name__ == "__main__":
     with app.app_context():
+        db.create_all()
         upgrade()
-    
+
+    init_views(app)
     app.run()

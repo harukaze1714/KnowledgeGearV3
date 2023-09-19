@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{{ book.name }}</title>
@@ -9,27 +10,36 @@
 </head>
 
 <body>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h3>Select a Chapter: {{ book.name }}</h3>
-            <ul class="list-group">
-                {% for chapter in chapters %}
-                <li class="list-group-item">
-                    <span class="chapter_name">
-                        <a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=chapter.id) }}">Chapter ID: {{ chapter.id }}</a>
-                    </span>
-                    <span class="badge bg-secondary total_questions">Total: {{ chapter.total_questions }}</span>
-                    <span class="badge bg-success recent_correct_answers">Correct: {{ chapter.recent_correct_answers }}</span>
-                </li>
-                {% endfor %}
-            </ul>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h3>Select a Chapter: {{ book.name }}</h3>
+                <!-- (前略) -->
+                <ul class="list-group">
+                    {% for chapter in chapters %}
+                    <li class="list-group-item">
+                        <span class="chapter_name">
+                            <a href="{{ url_for('quiz_mode_selection', book_id=book_id, chapter_id=chapter.id) }}">
+                                {% if chapter.name %}
+                                {{ chapter.name }} <br>(Chapter ID: {{ chapter.id }})
+                                {% else %}
+                                Chapter ID: {{ chapter.id }}
+                                {% endif %}
+                            </a>
+                        </span>
+                        <span class="badge bg-secondary total_questions">Total: {{ chapter.total_questions }}</span>
+                        <span class="badge bg-success recent_correct_answers">Correct: {{ chapter.recent_correct_answers
+                            }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>

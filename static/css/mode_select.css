@@ -1,0 +1,67 @@
+body {
+    font-family: 'Arial, sans-serif';
+    background-color: #f9fafc;
+    color: #333;
+}
+
+.quiz-container {
+    margin-top: 5rem;
+}
+
+.sc-quiz-text h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.sc-button-container {
+    background-color: #ffffff;
+    /* 色を白に設定 */
+    padding: 20px;
+    /* 余白を追加してコンテンツと背景色の間にスペースを作成 */
+    border-radius: 10px;
+    /* オプション: 角を丸くする */
+}
+
+
+.sc-choice-btn {
+    display: block;
+    /* ブロックレベル要素に変更してボタンを縦に並べます */
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 2px solid #007BFF;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.375rem;
+    background-color: #007BFF;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
+    margin: 0 auto 1rem;
+    /* 左右のマージンを自動に設定してボタンを中央に配置 */
+    min-width: 100px;
+    /* 最小幅を設定 */
+}
+
+.sc-choice-btn:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.sc-choice-btn.disabled {
+    pointer-events: none;
+    background-color: grey;
+}
+
+@media (max-width: 600px) {
+    .sc-choice-btn {
+        width: 100%;
+        font-size: 1rem;
+        max-width: 200px;
+        /* 最大幅を設定 */
+    }
+}

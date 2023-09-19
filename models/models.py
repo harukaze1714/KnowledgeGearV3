@@ -44,6 +44,22 @@ class Book(db.Model):
             "book_id": self.book_id,
             "name": self.name
         }
+    
+class Chapter(db.Model):
+    __bind_key__ = 'db1'
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('book.book_id'), nullable=False)
+    chapter_id = db.Column(db.Integer, nullable=False, unique=True)
+    name = db.Column(db.String(255), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "book_id": self.book_id,
+            "chapter_id": self.chapter_id,
+            "name": self.name,
+        }
+
 
 class AnswerHistory(db.Model):
     __bind_key__ = 'db2'
