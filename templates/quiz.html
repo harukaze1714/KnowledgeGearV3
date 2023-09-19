@@ -6,6 +6,8 @@
     <title>四択クイズ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
@@ -65,6 +67,45 @@
         </div>
         <a id="next-btn" class="btn btn-secondary mt-1 btn-block" style="display:none;">次の問題へ</a>
         <div id="explanation" style="display:none;"></div>
+
+        <div id="user-feedback-buttons" class="user-feedback-btn-container" style="display: none;">
+            <button id="like-button" class="btn user-feedback-btn btn-success">いいね</button>
+            <button id="dislike-button" class="btn user-feedback-btn btn-danger">いまいち</button>
+        </div>
+
+
+        <!-- ポップアップモーダル -->
+        <div class="modal fade" id="user-feedback-modal" tabindex="-1" aria-labelledby="user-feedback-modal-label"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="user-feedback-modal-label">フィードバック</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label>問題に関するフィードバック:</label>
+                        <div>
+                            <button class="btn btn-secondary user-feedback-option" data-reaction-type-id="1"
+                                data-user-feedback="問題がマニアックすぎる">問題がマニアックすぎる</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary user-feedback-option" data-reaction-type-id="2"
+                                data-user-feedback="正解が間違っている">正解が間違っている</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary user-feedback-option" data-reaction-type-id="3"
+                                data-user-feedback="意味のない問題になっている。簡単すぎる">意味のない問題になっている。簡単すぎる</button>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary user-feedback-option" data-reaction-type-id="4"
+                                data-user-feedback="その他">その他</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     </div>
 
@@ -95,11 +136,6 @@
 
                 explanationText = questions[questionCount].explanation;
 
-                //console.log("questionCount", questionCount);
-                //console.log("questions:", questions);
-                //console.log("Correct Answer:", correctAnswer);
-                //console.log("explanationText:", explanationText);
-
                 let userChoice = e.target.getAttribute('data-choice');
                 let isCorrect = userChoice === correctAnswer;
 
@@ -107,7 +143,7 @@
                 document.getElementById('feedback-text').innerText = isCorrect ? '正解！' : '不正解...';
 
                 if (isCorrect) {
-                    correctAnswers++; 
+                    correctAnswers++;
                     document.getElementById('correct-answer').style.display = 'none';
                     if (document.getElementsByClassName('history-icon')[0]?.offsetHeight !== undefined) {
                         document.getElementById('feedback-text').style.height = 55 + 'px';
@@ -120,7 +156,7 @@
 
                 document.getElementById('feedback').style.display = 'block';
                 document.getElementById('history-title').style.display = 'block';
-
+                document.getElementById('user-feedback-buttons').style.display = 'flex';
 
 
                 // 解説テキストを表示
@@ -214,7 +250,6 @@
                 historyEntry.appendChild(icon);
 
                 historyContainer.appendChild(historyEntry);
-                //console.log("historyEntry:", historyEntry);
             });
         }
 
@@ -225,9 +260,8 @@
 
         function loadNextQuestion() {
             questionCount++;
-            //console.log("questions", questions);
             if (questionCount >= questions.length) {
-                window.location.href = "/score_page/" + questions[0].book_id +"/"+ questions[0].chapter_id + "?correct=" + correctAnswers + "&total=" + questionCount; // 成績画面のURL (book_id, correct, and total パラメータ付き)               return;
+                window.location.href = "/score_page/" + questions[0].book_id + "/" + questions[0].chapter_id + "?correct=" + correctAnswers + "&total=" + questionCount; // 成績画面のURL (book_id, correct, and total パラメータ付き)               return;
             }
 
             document.querySelector('.badge.bg-primary').textContent = "Book ID: " + questions[questionCount].book_id;
@@ -244,11 +278,6 @@
             choices[2].textContent = optionsArray[2].content;
             choices[3].textContent = optionsArray[3].content;
 
-            //console.log("currentQuestion:", currentQuestion);
-            //console.log("optionsArray:", optionsArray);
-
-
-
             // フィードバックセクションと解説セクションをリセットします。
             document.getElementById('feedback').classList.remove('alert-success', 'alert-danger');
             document.getElementById('feedback').style.display = 'none';
@@ -258,7 +287,11 @@
             document.getElementById('next-btn').style.display = 'none';
             document.getElementById('history-title').style.display = 'none';
             document.getElementById('answer-history').innerHTML = '';  // 履歴をリセット
-
+            document.getElementById('user-feedback-buttons').style.display = 'none';
+            document.getElementById('dislike-button').className = 'btn user-feedback-btn btn-danger'; // いまいちボタンの状態を初期に戻します。
+            document.getElementById('like-button').className = 'btn user-feedback-btn btn-success'; // いいねボタンの状態を初期に戻します。
+            document.getElementById('dislike-button').style.pointerEvents = "auto";
+            document.getElementById('like-button').style.pointerEvents = "auto";    
 
             // ボタンのクリックイベントを再度有効にします。
             document.querySelectorAll('.choice-btn').forEach(btn => {
@@ -266,7 +299,6 @@
                 btn.classList.remove('selected-choice'); // 選択したボタンのクラスをリセット
             });
         }
-
 
         function shuffleOptionsAndKeepTrack() {
             currentQuestion = questions[questionCount];
@@ -299,8 +331,6 @@
             return { optionsArray, correctAnswer, optionsMapping };
         }
 
-
-
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -320,6 +350,52 @@
         function getShuffleHistory() {
             return shuffleHistory;
         }
+
+        document.getElementById('like-button').addEventListener('click', () => {
+            document.getElementById('like-button').classList.toggle('btn-success');
+            saveUserFeedback(1, 'like');
+            document.getElementById('like-button').style.pointerEvents = "none";
+        });
+
+
+        document.getElementById('dislike-button').addEventListener('click', () => {
+            document.getElementById('dislike-button').classList.toggle('btn-danger');
+            $('#user-feedback-modal').modal('show');
+            document.getElementById('dislike-button').style.pointerEvents = "none";
+        });
+
+        document.querySelectorAll('.user-feedback-option').forEach(button => {
+            button.addEventListener('click', (e) => {
+                let reactionTypeId = parseInt(e.target.getAttribute('data-reaction-type-id'), 10);
+                let userFeedbackText = e.target.getAttribute('data-user-feedback');
+                saveUserFeedback(reactionTypeId, 'dislike');  // 'dislike' を直接渡します
+                $('#user-feedback-modal').modal('hide');
+            });
+        });
+
+        function saveUserFeedback(reactionTypeId, likeDislike) {
+            const data = {
+                quiz_id: questions[questionCount].quiz_id,
+                user_id: 1,  // ここに実際のユーザーIDをセットします
+                reaction_type_id: reactionTypeId,
+                like_dislike: likeDislike,  // 'like' または 'dislike'
+                book_id: questions[questionCount].book_id,
+                chapter_id: questions[questionCount].chapter_id,
+            };
+
+            fetch('/save-feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => console.log(data.message))
+                .catch(error => console.log('Error:', error));
+        }
+
+
 
     </script>
 

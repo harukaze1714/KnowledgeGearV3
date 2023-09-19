@@ -2,3 +2,4 @@ gunicorn
 flask_sqlalchemy
 python-dotenv
 Flask
+Flask-Migrate

@@ -1,6 +1,7 @@
 from flask import render_template, request, jsonify, session, g, redirect, url_for
 from utils import load_quiz_data, get_quiz_questions, get_question_counts
-from models import Book, AnswerHistory, FourChoice
+from models import Book, AnswerHistory, FourChoice,Like,Dislike,db
+from collections import Counter
 
 def init_views(app):
     books = load_quiz_data(app)
@@ -97,6 +98,46 @@ def init_views(app):
 
         answer_history = [ah.to_dict() for ah in AnswerHistory.query.filter_by(user_id=user_id, book_id=book_id, chapter_id=chapter_id).all()]
         return jsonify({'answer_history': answer_history}), 200
+    
+    @app.route('/save-feedback', methods=['POST'])
+    def save_feedback():
+        data = request.get_json()
+        print("save_feedback", data)
+        
+        quiz_id = data.get('quiz_id')
+        user_id = data.get('user_id')
+        reaction_type_id = data.get('reaction_type_id')
+        like_dislike = data.get('like_dislike')  # 'like' または 'dislike' の値を持つ
+        book_id = data.get('book_id')
+        chapter_id = data.get('chapter_id')
+
+        ModelClass = Like if like_dislike == 'like' else Dislike
+        feedback = ModelClass(
+            quiz_id=quiz_id, 
+            user_id=user_id, 
+            reaction_type_id=reaction_type_id, 
+            book_id=book_id, 
+            chapter_id=chapter_id
+        )
+        
+        print("save_feedback", quiz_id, user_id, reaction_type_id, like_dislike, book_id, chapter_id)
+        db.session.add(feedback)
+        db.session.commit()
+        return jsonify(message='Feedback saved successfully'), 200
+
+    @app.route('/management/user-reactions')
+    def user_feedback():
+        # データベースからlikesとdislikesを取得
+        likes = Like.query.all()
+        dislikes = Dislike.query.all()
+
+        # 各属性による集計
+        likes_summary = Counter([(like.quiz_id, like.book_id, like.chapter_id) for like in likes])
+        dislikes_summary = Counter([(dislike.quiz_id, dislike.book_id, dislike.chapter_id) for dislike in dislikes])
+        print("user_reactions",likes_summary, dislikes_summary)
+
+        return render_template('user_reactions.html', likes_summary=likes_summary, dislikes_summary=dislikes_summary)
+
 
     if __name__ == "__main__":
         with app.app_context():

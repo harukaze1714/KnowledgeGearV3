@@ -168,7 +168,7 @@ body {
     outline: none !important;
 }
 .question-container {
-    min-height: 400px;
+    min-height: 350px;
 }
 
 
@@ -258,6 +258,28 @@ body {
 .recent_correct_answers{
     min-width: 80px;
     display: inline-block;
+}
+
+.user-feedback-btn-container {
+    margin-top: 3px;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    gap: 10px; 
+    width: 100%; /* コンテナの幅を100%に設定 */
+    flex-direction: row; /* ボタンを横並びに配置 */
+}
+
+.user-feedback-btn {
+    text-align: center; 
+    flex: 1; /* ボタンに均等な幅を割り当て */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+}
+.user-feedback-option {
+    margin-bottom: 10px;
 }
 
 /* デスクトップ用のスタイルの追加 (768px以上の画面幅の場合) */
