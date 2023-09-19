@@ -1,7 +1,7 @@
 from flask import Flask
 from models import  db
 from views.views import init_views
-from flask_migrate import Migrate, upgrade
+#from flask_migrate import Migrate, upgrade
 
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'
@@ -10,7 +10,6 @@ app.config['SQLALCHEMY_BINDS'] = {
     'db1': 'sqlite:///mydatabase.db',
     'db2': 'sqlite:///answerdata.db'
 }
-
 
 db.init_app(app)
 #migrate = Migrate(app, db)
