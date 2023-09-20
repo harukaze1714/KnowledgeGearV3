@@ -62,3 +62,4 @@ jobs:
           app-name: 'KnowledgeGearV3'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_951C7B65CA1445C1A76330E4C4992553 }}
+          package: './app.py'
