@@ -1,6 +1,6 @@
 from flask import Flask
 from models import  db
-from views.views import init_views
+from views import init_views
 #from flask_migrate import Migrate, upgrade
 
 app = Flask(__name__)
