@@ -13,6 +13,7 @@ app.config['SQLALCHEMY_BINDS'] = {
 
 db.init_app(app)
 #migrate = Migrate(app, db)
+init_views(app)
 
 if __name__ == "__main__":
     with app.app_context():
@@ -20,5 +21,5 @@ if __name__ == "__main__":
         #db.create_all()
         #upgrade()
 
-    init_views(app)
+    #init_views(app)
     app.run()
