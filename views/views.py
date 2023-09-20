@@ -150,9 +150,3 @@ def init_views(app):
         print("user_reactions",likes_summary, dislikes_summary)
 
         return render_template('user_reactions.html', likes_summary=likes_summary, dislikes_summary=dislikes_summary)
-
-
-    if __name__ == "__main__":
-        with app.app_context():
-            db.create_all()
-        app.run(debug=True)
