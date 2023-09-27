@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 db = SQLAlchemy()
 
 class FourChoice(db.Model):
@@ -102,3 +103,12 @@ class Dislike(db.Model):
     book_id = db.Column(db.Integer, nullable=True)  # 新しい列を追加
     chapter_id = db.Column(db.Integer, nullable=True)  # 新しい列を追加
 
+
+class User(UserMixin, db.Model):
+    __bind_key__ = 'db2'
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)  
+    
+    def get_id(self):
+        return str(self.user_id)

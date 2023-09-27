@@ -1,10 +1,9 @@
 from flask import Flask
-from models import  db
+from models import db
 from views.views import init_views
-#from flask_migrate import Migrate, upgrade
 
 app = Flask(__name__)
-app.secret_key = 'some_secret_key'
+app.config['SECRET_KEY'] = 'some_secret_key'  # こちらを使用します
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///maindatabase.db'
 app.config['SQLALCHEMY_BINDS'] = {
     'db1': 'sqlite:///mydatabase.db',
@@ -12,14 +11,11 @@ app.config['SQLALCHEMY_BINDS'] = {
 }
 
 db.init_app(app)
-#migrate = Migrate(app, db)
 init_views(app)
 
 if __name__ == "__main__":
     with app.app_context():
-        print()
-        #db.create_all()
-        #upgrade()
+        # DB関連の初期化処理やマイグレーションはここに記述されるでしょう
+        pass  # この行は仮のもので、必要に応じて変更・削除してください
 
-    #init_views(app)
     app.run()

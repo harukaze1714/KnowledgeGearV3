@@ -1,38 +1,47 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>四択クイズ - 本の選択!!</title>
 
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>四択クイズ - 本の選択!!</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
-<header>
-</header>
+    <header>
+        <nav class="navbar navbar-dark bg-dark"> <!-- Added a navbar -->
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">四択クイズ</a> <!-- Brand Name -->
+                <button class="btn btn-outline-light" type="button"
+                    onclick="location.href='{{ url_for('logout') }}'">ログアウト</button> <!-- Logout Button -->
+            </div>
+        </nav>
+    </header>
 
-<main class="container mt-5">
-    <section class="row justify-content-center">
-        <div class="col-md-8">
-            <h3>Select a Book</h3>
-            <ul class="list-group">
-                {% for book in books %}
-                <li class="list-group-item">
-                    <a href="{{ url_for('select_chapter', book_id=book.book_id) }}">{{ book.name }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </section>
-</main>
+    <main class="container mt-5">
+        <section class="row justify-content-center">
+            <div class="col-md-8">
+                <h3>Select a Book</h3>
+                <ul class="list-group">
+                    {% for book in books %}
+                    <li class="list-group-item">
+                        <a href="{{ url_for('select_chapter', book_id=book.book_id) }}">{{ book.name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </main>
 
-<!-- Footer (if necessary) -->
+    <!-- Footer (if necessary) -->
 
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>

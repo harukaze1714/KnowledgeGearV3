@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPAログイン & アカウント作成</title>
+    <link rel="stylesheet" href="/static/css/login_style.css">
+    <script src="/static/javaScript/login_script.js" defer></script>
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- ログイン画面の内容 -->
+        <div id="login-page">
+            <h2>ログイン</h2>
+            <form action="/login" method="post">
+                {{ form.csrf_token }} <!-- CSRFトークンを追加 -->
+                <div class="input-container">
+                    <label for="username-login">ユーザーネーム</label>
+                    <input type="text" id="username-login" name="username" required>
+                </div>
+                <div class="input-container">
+                    <label for="password-login">パスワード</label>
+                    <input type="password" id="password-login" name="password" required>
+                </div>
+                <button type="submit" class="login-button">ログイン</button>
+            </form>
+            <div class="signup-link">
+                アカウントを持っていない方は<a href="#" onclick="showSignupPage()">こちら</a>
+            </div>
+        </div>
+
+        <!-- アカウント作成画面の内容 -->
+        <div id="signup-page" style="display: none;">
+            <h2>アカウント作成</h2>
+            <form action="/signup" method="post">
+                {{ form.csrf_token }} <!-- CSRFトークンを追加 -->
+                <div class="input-container">
+                    <label for="username-signup">ユーザーネーム</label>
+                    <input type="text" id="username-signup" name="username" required>
+                </div>
+                <div class="input-container">
+                    <label for="password-signup">パスワード</label>
+                    <input type="password" id="password-signup" name="password" required>
+                </div>
+                <div class="input-container">
+                    <label for="confirm-password">パスワード確認</label>
+                    <input type="password" id="confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="login-button">アカウント作成</button>
+            </form>
+            <div class="signup-link">
+                既にアカウントをお持ちの方は<a href="#" onclick="showLoginPage()">ログイン</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

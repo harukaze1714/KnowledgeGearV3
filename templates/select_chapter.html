@@ -10,6 +10,16 @@
 </head>
 
 <body>
+    <header>
+        <nav class="navbar navbar-dark bg-dark"> <!-- Added a navbar -->
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">四択クイズ</a> <!-- Brand Name -->
+                <button class="btn btn-outline-light" type="button"
+                    onclick="location.href='{{ url_for('logout') }}'">ログアウト</button> <!-- Logout Button -->
+            </div>
+        </nav>
+    </header>
+
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">

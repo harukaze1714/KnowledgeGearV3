@@ -3,6 +3,20 @@ body {
     background-color: #f9fafc;
     color: #333;
 }
+.navbar {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.navbar-brand {
+    padding-top: 0;  /* トップのパディングを0に設定 */
+    padding-bottom: 0;  /* ボトムのパディングを0に設定 */
+    font-size: 1rem;  /* 必要に応じてフォントサイズを調整 */
+}
+.btn.btn-outline-light {
+    padding-top: 5px;  /* トップのパディング調整 */
+    padding-bottom: 5px;  /* ボトムのパディング調整 */
+    font-size: 0.8rem;  /* 必要に応じてフォントサイズを調整 */
+}
 
 .quiz-container {
     margin-top: 5rem;

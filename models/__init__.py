@@ -1,1 +1,1 @@
-from .models import Book ,FourChoice ,AnswerHistory ,Like,Dislike,Chapter, db
+from .models import Book ,FourChoice ,AnswerHistory ,Like,Dislike,Chapter,User, db
