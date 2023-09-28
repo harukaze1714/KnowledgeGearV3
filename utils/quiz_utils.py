@@ -84,16 +84,14 @@ def get_question(user_id, book_id, chapter_id):
 def load_quiz_data(app):
     with app.app_context():
         if not Book.query.first():
-            book1 = Book(book_id=99, name="Book 1")
-            db.session.add(book1)
             db.session.commit()
         db.create_all()
         books = [b.to_dict() for b in Book.query.all()]
     return books
 
-def get_quiz_questions(book_id, chapter_id, mode):
+def get_quiz_questions(book_id, chapter_id, mode,user_id):
     # この部分でデータベースから問題を取得し、モードに基づいてフィルタリングします。
-    user_id=1
+
     print("get_quiz_questions",book_id, chapter_id, mode)
 
     if mode == 'review':

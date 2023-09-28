@@ -11,6 +11,8 @@ app.config['SQLALCHEMY_BINDS'] = {
 }
 
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 init_views(app)
 
 if __name__ == "__main__":

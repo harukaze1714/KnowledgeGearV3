@@ -194,14 +194,13 @@ def init_views(app):
     def quiz(book_id, chapter_id, mode):
         user_id = current_user.user_id
 
-        print("quiz",book_id, chapter_id, mode)
-        questions = get_quiz_questions(int(book_id), int(chapter_id), mode)
+        questions = get_quiz_questions(int(book_id), int(chapter_id), mode, user_id)
         
         if not questions:
             return "No questions found for this book and chapter", 404
-        print("quiz2",book_id, chapter_id, mode, questions)
+
         answer_history = [ah.to_dict() for ah in AnswerHistory.query.filter_by(user_id=user_id, book_id=str(book_id), chapter_id=str(chapter_id)).all()]
-        return render_template('quiz.html', questions=[q.to_dict() for q in questions], answer_history=answer_history, questionCount=0)
+        return render_template('quiz.html', questions=[q.to_dict() for q in questions], answer_history=answer_history, questionCount=0, user_id=user_id)
 
 
 

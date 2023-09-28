@@ -2,3 +2,5 @@ gunicorn
 flask_sqlalchemy
 python-dotenv
 Flask
+flask_login
+flask_wtf
